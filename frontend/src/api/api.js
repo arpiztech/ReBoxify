@@ -1,46 +1,18 @@
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+import axios from 'axios';
 
-async function request(endpoint, options = {}) {
-  const token = localStorage.getItem('token');
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-    ...options.headers,
-  };
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+const instance = axios.create({ baseURL: API_BASE, headers: { 'Content-Type': 'application/json' } });
 
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const message = data.message || data.error || 'Request failed';
-    const err = new Error(message);
-    err.response = data;
-    throw err;
-  }
-  return data;
-}
+instance.interceptors.request.use((cfg) => {
+  const token = localStorage.getItem('ecorent_token');
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
 
-export const api = {
-  auth: {
-    register: (data) => request('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
-    login: (data) => request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
-  },
-  containers: {
-    getAll: () => request('/containers'),
-    getById: (id) => request(`/containers/${id}`),
-    create: (data) => request('/containers', { method: 'POST', body: JSON.stringify(data) }),
-    update: (id, data) => request(`/containers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  },
-  rentals: {
-    create: (data) => request('/rentals', { method: 'POST', body: JSON.stringify(data) }),
-    getMyRentals: () => request('/rentals/my'),
-    returnContainer: (id, data) => request(`/rentals/${id}/return`, { method: 'POST', body: JSON.stringify(data) }),
-  },
-  wallet: {
-    getBalance: () => request('/wallet'),
-    addFunds: (amount) => request('/wallet/add', { method: 'POST', body: JSON.stringify({ amount }) }),
-  },
-  stats: {
-    getCO2Stats: () => request('/stats/co2'),
-    getVendorStats: () => request('/stats/vendor'),
-  }
-};
+export const authApi = { register: (payload) => instance.post('/auth/register', payload), login: (payload) => instance.post('/auth/login', payload) };
+export const containerApi = { getAll: () => instance.get('/containers'), getById: (id) => instance.get(`/containers/${id}`), create: (data) => instance.post('/containers', data), update: (id,data) => instance.put(`/containers/${id}`, data) };
+export const rentalApi = { create: (data) => instance.post('/rentals', data), my: () => instance.get('/rentals/my'), return: (id, data) => instance.post(`/rentals/${id}/return`, data) };
+export const walletApi = { balance: () => instance.get('/wallet'), add: (amount) => instance.post('/wallet/add', { amount }), transactions: () => instance.get('/wallet/transactions') };
+export const statsApi = { co2: () => instance.get('/stats/co2'), vendor: () => instance.get('/stats/vendor') };
+
+export default instance;
