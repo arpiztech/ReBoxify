@@ -1,93 +1,57 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+"use client";
 
-export default function Navbar() {
-  const { user, logout } = React.useContext(AuthContext);
-  const nav = useNavigate();
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+
+const Navbar = () => {
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
     logout();
-    nav("/login");
+    toast.success("Logged out successfully");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-      <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">
+    <nav className="navbar navbar-dark navbar-custom">
+      <div className="container-fluid">
+        <Link to="/" className="navbar-brand fw-bold fs-5">
           ECOrent
         </Link>
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navMenu"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="collapse navbar-collapse" id="navMenu">
-          <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              <Link className="nav-link" to="/browse">
-                Browse
+        <div className="d-flex gap-3">
+          {!user ? (
+            <>
+              <Link to="/login" className="nav-link text-white">
+                Login
               </Link>
-            </li>
-
-            {user ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/dashboard">
-                    Dashboard
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link className="nav-link" to="/rentals">
-                    My Rentals
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link className="nav-link" to="/wallet">
-                    Wallet
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link className="nav-link" to="/profile">
-                    {user.name}
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <button
-                    className="btn btn-sm btn-outline-danger ms-2"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </button>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
-                    Login
-                  </Link>
-                </li>
-
-                <li className="nav-item">
-                  <Link className="nav-link" to="/register">
-                    Register
-                  </Link>
-                </li>
-              </>
-            )}
-          </ul>
+              <Link to="/register" className="nav-link text-white">
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                to={`/${user.role}/dashboard`}
+                className="nav-link text-white"
+              >
+                Dashboard
+              </Link>
+              <Link to="/profile" className="nav-link text-white">
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="btn btn-link nav-link text-white p-0"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

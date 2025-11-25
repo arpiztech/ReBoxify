@@ -1,60 +1,77 @@
-import React, { createContext, useState, useEffect } from "react";
-import API from "../services/api";
+"use client";
 
-export const AuthContext = createContext();
+import { createContext, useContext, useState, useEffect } from "react";
+import api from "../utils/api";
+
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("ecorent_user")) || null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
-    if (user) localStorage.setItem("ecorent_user", JSON.stringify(user));
-    else localStorage.removeItem("ecorent_user");
-  }, [user]);
+    if (token) {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
 
-  const login = async (email, password) => {
-    const { data } = await API.post("/auth/login", { email, password });
-    localStorage.setItem("ecorent_token", data.token);
+  const fetchUser = async () => {
+    try {
+      const data = await api.get("/auth/profile");
+      setUser(data.user);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      localStorage.removeItem("token");
+      setToken(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (userData) => {
+    const data = await api.post("/auth/register", userData);
+    localStorage.setItem("token", data.token);
+    setToken(data.token);
     setUser(data.user);
     return data;
   };
 
-  const register = async (name, email, password) => {
-    const { data } = await API.post("/auth/register", {
-      name,
-      email,
-      password,
-    });
-    localStorage.setItem("ecorent_token", data.token);
+  const login = async (email, password) => {
+    const data = await api.post("/auth/login", { email, password });
+    localStorage.setItem("token", data.token);
+    setToken(data.token);
     setUser(data.user);
     return data;
   };
 
   const logout = () => {
-    localStorage.removeItem("ecorent_token");
-    localStorage.removeItem("ecorent_user");
+    localStorage.removeItem("token");
+    setToken(null);
     setUser(null);
   };
 
-  const refreshProfile = async () => {
-    try {
-      const { data } = await API.get("/auth/me");
-      setUser(data);
-    } catch (e) {
-      console.error(e);
-    }
+  const updateProfile = async (profileData) => {
+    const data = await api.put("/auth/profile", profileData);
+    setUser(data.user);
+    return data;
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, login, register, logout, refreshProfile }}
+      value={{ user, loading, token, register, login, logout, updateProfile }}
     >
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
 };

@@ -1,53 +1,138 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+"use client";
 
-export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { register } = React.useContext(AuthContext);
-  const nav = useNavigate();
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
-  const submit = async (e) => {
+const Register = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "customer",
+    phone: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await register(name, email, password);
-      nav("/browse");
-    } catch (err) {
-      alert(err.response?.data?.message || "Register failed");
+      await register(formData);
+      toast.success("Registration successful!");
+      navigate(`/${formData.role}/dashboard`);
+    } catch (error) {
+      toast.error(error.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Register</h2>
-      <form onSubmit={submit} className="space-y-3">
-        <input
-          required
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-2 border"
-        />
-        <input
-          required
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border"
-        />
-        <input
-          required
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border"
-        />
-        <button className="w-full p-2 bg-blue-600 text-white">Register</button>
-      </form>
+    <div
+      className="d-flex align-items-center justify-content-center bg-light"
+      style={{ minHeight: "100vh" }}
+    >
+      <div className="card shadow" style={{ maxWidth: "450px", width: "100%" }}>
+        <div className="card-body p-4">
+          <h2 className="card-title text-center fw-bold mb-4">Register</h2>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className="form-control"
+                placeholder="Your name"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="form-control"
+                placeholder="your@email.com"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Password</label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="form-control"
+                placeholder="Enter password"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="customer">Customer</option>
+                <option value="vendor">Vendor</option>
+              </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold small">
+                Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="form-control"
+                placeholder="+91"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary w-100"
+            >
+              {loading ? "Registering..." : "Register"}
+            </button>
+          </form>
+
+          <p className="text-center text-muted mt-4">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-primary fw-bold text-decoration-none"
+            >
+              Login
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default Register;
