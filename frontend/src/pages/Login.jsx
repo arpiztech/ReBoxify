@@ -15,12 +15,31 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      await login(email, password);
+      // LOGIN CALL
+      const res = await login(email, password);
+
+      // SAVE TOKEN + USER IN LOCALSTORAGE
+      if (res?.token) {
+        localStorage.setItem("token", res.token);
+      }
+      if (res?.user) {
+        localStorage.setItem("user", JSON.stringify(res.user));
+      }
+
       toast.success("Login successful!");
-      navigate("/");
-    } catch (error) {
-      toast.error(error.message || "Login failed");
+
+      // ROLE BASED REDIRECT
+      if (res?.user?.role === "customer") {
+        navigate("/customer/dashboard");
+      } else if (res?.user?.role === "vendor") {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/"); // fallback
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -40,10 +59,10 @@ const Login = () => {
               <label className="form-label fw-bold small">Email</label>
               <input
                 type="email"
+                className="form-control"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-                className="form-control"
                 placeholder="your@email.com"
               />
             </div>
@@ -52,29 +71,26 @@ const Login = () => {
               <label className="form-label fw-bold small">Password</label>
               <input
                 type="password"
+                className="form-control"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="form-control"
                 placeholder="Enter password"
               />
             </div>
 
             <button
               type="submit"
-              disabled={loading}
               className="btn btn-primary w-100"
+              disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
-          <p className="text-center text-muted mt-4">
+          <p className="text-center mt-3 text-muted small">
             Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-primary fw-bold text-decoration-none"
-            >
+            <Link to="/register" className="fw-bold text-decoration-none">
               Register
             </Link>
           </p>

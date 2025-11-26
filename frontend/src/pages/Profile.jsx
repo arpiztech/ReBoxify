@@ -65,7 +65,7 @@ const Profile = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <div className="flex-grow-1 p-4" style={{ backgroundColor: "#f8f9fa" }}>
+      <div className="flex-grow:1 p-4" style={{ backgroundColor: "#f8f9fa" }}>
         <h1 className="fw-bold fs-2 mb-4">My Profile</h1>
 
         <form

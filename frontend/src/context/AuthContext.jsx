@@ -6,7 +6,9 @@ import api from "../utils/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem("token"));
 
@@ -20,43 +22,61 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const data = await api.get("/auth/profile");
-      setUser(data.user);
+      // Axios returns { data: {...} }
+      const res = await api.get("/auth/profile");
+      setUser(res.data.user);
+
+      // store updated user
+      localStorage.setItem("user", JSON.stringify(res.data.user));
     } catch (error) {
       console.error("Failed to fetch user:", error);
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setToken(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
   const register = async (userData) => {
-    const data = await api.post("/auth/register", userData);
-    localStorage.setItem("token", data.token);
-    setToken(data.token);
-    setUser(data.user);
-    return data;
+    const res = await api.post("/auth/register", userData);
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    setToken(res.data.token);
+    setUser(res.data.user);
+
+    return res.data;
   };
 
   const login = async (email, password) => {
-    const data = await api.post("/auth/login", { email, password });
-    localStorage.setItem("token", data.token);
-    setToken(data.token);
-    setUser(data.user);
-    return data;
+    const res = await api.post("/auth/login", { email, password });
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    setToken(res.data.token);
+    setUser(res.data.user);
+
+    return res.data;
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setToken(null);
     setUser(null);
   };
 
   const updateProfile = async (profileData) => {
-    const data = await api.put("/auth/profile", profileData);
-    setUser(data.user);
-    return data;
+    const res = await api.put("/auth/profile", profileData);
+    setUser(res.data.user);
+
+    localStorage.setItem("user", JSON.stringify(res.data.user));
+
+    return res.data;
   };
 
   return (

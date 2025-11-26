@@ -37,7 +37,7 @@ const Sidebar = () => {
 
   return (
     <aside className="sidebar">
-      <h2 className="text-white fw-bold mb-4">ECOrent</h2>
+      <h2 className="text-white fw-bold mb-4">ReBoxify</h2>
       <nav className="d-flex flex-column gap-1">
         {links.map((link) => (
           <Link

@@ -16,12 +16,18 @@ const Navbar = () => {
     <nav className="navbar navbar-dark navbar-custom">
       <div className="container-fluid">
         <Link to="/" className="navbar-brand fw-bold fs-5">
-          ECOrent
+          ReBoxify
         </Link>
 
         <div className="d-flex gap-3">
           {!user ? (
             <>
+              <Link to="/home" className="nav-link text-white">
+                Home
+              </Link>
+              <Link to="/about" className="nav-link text-white">
+                About
+              </Link>
               <Link to="/login" className="nav-link text-white">
                 Login
               </Link>
