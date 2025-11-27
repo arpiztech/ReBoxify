@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(
-      "mongodb+srv://root:root123@cluster0.zduyl7j.mongodb.net/ecorent"
+      "mongodb+srv://root:root123@cluster0.zduyl7j.mongodb.net/ReBoxify"
     );
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);

@@ -4,11 +4,12 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
 
-import authRoutes from "./routes/authRoutes.js";
-import containerRoutes from "./routes/containerRoutes.js";
-import rentalRoutes from "./routes/rentalRoutes.js";
-import walletRoutes from "./routes/walletRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
+// Routes (will be added in next steps)
+import authRoutes from "./routes/authRoutes.js";
+import customerRoutes from "./routes/customerRoutes.js";
+import vendorRoutes from "./routes/vendorRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -17,15 +18,16 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan("dev"));
 app.use(errorHandler);
+app.use(express.urlencoded({ extended: true }));
 
 // Database connect
 connectDB();
 
-// API Routes
+// Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/containers", containerRoutes);
-app.use("/api/rentals", rentalRoutes);
-app.use("/api/wallet", walletRoutes);
+app.use("/api/customer", customerRoutes);
+app.use("/api/vendor", vendorRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;

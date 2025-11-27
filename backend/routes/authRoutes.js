@@ -1,13 +1,19 @@
 import express from "express";
-import { protect, authorizeRole } from "../middleware/authMiddleware.js";
-import { getProfile } from "../controllers/authController.js";
+import {
+  register,
+  login,
+  getProfile,
+  updateProfile,
+} from "../controllers/authController.js";
+import { protect } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // Protected Route → User Profile
-router.get("/profile", protect, getProfile);
 
-// Vendor-only Route → Requires Vendor Role
-router.post("/vendor-only", protect, authorizeRole("vendor"));
+router.post("/register", register);
+router.post("/login", login);
+router.get("/profile", protect, getProfile);
+router.put("/profile", protect, updateProfile);
 
 export default router;
