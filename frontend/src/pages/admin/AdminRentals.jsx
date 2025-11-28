@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
-import api from "../../utils/api";
+//import api from "../../utils/api";
 import toast from "react-hot-toast";
 
 const AdminRentals = () => {

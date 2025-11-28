@@ -1,46 +1,59 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import api from "../utils/api";
+//import api from "../utils/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
-  const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem("token"));
-
-  useEffect(() => {
-    if (token) {
-      fetchUser();
-    } else {
-      setLoading(false);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || null;
+    } catch {
+      return null;
     }
+  });
+
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [loading, setLoading] = useState(true);
+
+  // ------------------------------
+  // Fetch authenticated user profile
+  // ------------------------------
+  useEffect(() => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    fetchUser();
   }, [token]);
 
   const fetchUser = async () => {
     try {
-      // Axios returns { data: {...} }
       const res = await api.get("/auth/profile");
-      setUser(res.data.user);
 
-      // store updated user
+      setUser(res.data.user);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-    } catch (error) {
-      console.error("Failed to fetch user:", error);
+    } catch (err) {
+      console.error("AuthContext: Failed to fetch user", err);
+
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      setToken(null);
+
       setUser(null);
+      setToken(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const register = async (userData) => {
-    const res = await api.post("/auth/register", userData);
+  // ------------------------------
+  // Register
+  // ------------------------------
+  const register = async (data) => {
+    const res = await api.post("/auth/register", data);
 
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data.user));
@@ -48,9 +61,14 @@ export const AuthProvider = ({ children }) => {
     setToken(res.data.token);
     setUser(res.data.user);
 
+    api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+
     return res.data;
   };
 
+  // ------------------------------
+  // Login
+  // ------------------------------
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
 
@@ -60,20 +78,31 @@ export const AuthProvider = ({ children }) => {
     setToken(res.data.token);
     setUser(res.data.user);
 
+    api.defaults.headers.common["Authorization"] = `Bearer ${res.data.token}`;
+
     return res.data;
   };
 
+  // ------------------------------
+  // Logout
+  // ------------------------------
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    setToken(null);
+
     setUser(null);
+    setToken(null);
+
+    delete api.defaults.headers.common["Authorization"];
   };
 
+  // ------------------------------
+  // Update Profile
+  // ------------------------------
   const updateProfile = async (profileData) => {
     const res = await api.put("/auth/profile", profileData);
-    setUser(res.data.user);
 
+    setUser(res.data.user);
     localStorage.setItem("user", JSON.stringify(res.data.user));
 
     return res.data;
@@ -81,17 +110,11 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, token, register, login, logout, updateProfile }}
+      value={{ user, token, loading, login, register, logout, updateProfile }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);

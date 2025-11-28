@@ -17,8 +17,19 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // LOGIN CALL
-      const res = await login(email, password);
+      let res;
+
+      // FRONTEND MOCK LOGIN (Replace with backend call later)
+      if (login) {
+        // If useAuth login is ready, call it
+        res = await login(email, password);
+      } else {
+        // Temporary mock response for frontend testing
+        res = {
+          token: "dummy-token",
+          user: { name: "Test User", role: "customer", email },
+        };
+      }
 
       // SAVE TOKEN + USER IN LOCALSTORAGE
       if (res?.token) {
@@ -39,7 +50,7 @@ const Login = () => {
         navigate("/"); // fallback
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error(err?.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import morgan from "morgan";
-import connectDB from "./config/db.js";
+// import morgan from "morgan";
+//import connectDB from "./config/db.js";
 
 import errorHandler from "./middleware/errorHandler.js";
 // Routes (will be added in next steps)
@@ -16,7 +16,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use(morgan("dev"));
+//app.use(morgan("dev"));
 app.use(errorHandler);
 app.use(express.urlencoded({ extended: true }));
 
