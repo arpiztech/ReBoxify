@@ -112,3 +112,118 @@ const Login = () => {
 };
 
 export default Login;
+
+
+"use client";
+
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import toast from "react-hot-toast";
+
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // 🔹 PURE FRONTEND LOGIN (Backend disabled)
+  const frontendMockLogin = async (email, password) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          token: "dummy-token-123",
+          user: {
+            name: "Frontend User",
+            email,
+            role: email.includes("vendor") ? "vendor" : "customer",
+          },
+        });
+      }, 700);
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // 🔹 For now: Using frontend mock login
+      const res = await frontendMockLogin(email, password);
+
+      // SAVE TOKEN + USER
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+
+      toast.success("Login successful!");
+
+      // 🔹 Redirect by role
+      if (res.user.role === "customer") {
+        navigate("/customer/dashboard");
+      } else if (res.user.role === "vendor") {
+        navigate("/vendor/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      toast.error("Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      className="d-flex align-items-center justify-content-center bg-light"
+      style={{ minHeight: "100vh" }}
+    >
+      <div className="card shadow" style={{ maxWidth: "400px", width: "100%" }}>
+        <div className="card-body p-4">
+          <h2 className="card-title text-center fw-bold mb-4">Login</h2>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Email</label>
+              <input
+                type="email"
+                className="form-control"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your@email.com"
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label fw-bold small">Password</label>
+              <input
+                type="password"
+                className="form-control"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="btn btn-primary w-100"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+
+          <p className="text-center mt-3 text-muted small">
+            Don't have an account?{" "}
+            <Link to="/register" className="fw-bold text-decoration-none">
+              Register
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
