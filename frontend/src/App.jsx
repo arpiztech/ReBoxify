@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -33,6 +34,10 @@ import AdminReports from "./pages/admin/AdminReports";
 
 function AppContent() {
   const { loading } = useAuth();
+  const location = useLocation();
+
+  // Pages where we don't want navbar (optional)
+  const hideNavbar = ["/login", "/register"].includes(location.pathname);
 
   if (loading) {
     return <Loader />;
@@ -40,7 +45,7 @@ function AppContent() {
 
   return (
     <>
-      <Navbar />
+      {!hideNavbar && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Home />} />

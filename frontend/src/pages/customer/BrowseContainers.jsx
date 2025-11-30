@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import ContainerCard from "../../components/ContainerCard";
-import api from "../../utils/api";
+//import api from "../../utils/api";
 import toast from "react-hot-toast";
 
 const BrowseContainers = () => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
-import api from "../../utils/api";
+//import api from "../../utils/api";
 import toast from "react-hot-toast";
 
 const AdminUsers = () => {
@@ -41,7 +41,7 @@ const AdminUsers = () => {
   return (
     <div className="d-flex">
       <Sidebar />
-      <div className="flex-grow-1 p-4" style={{ backgroundColor: "#f8f9fa" }}>
+      <div className="flex-grow: 1, p-4" style={{ backgroundColor: "#f8f9fa" }}>
         <h1 className="fw-bold fs-2 mb-4">Manage Users</h1>
 
         <div className="mb-4">
