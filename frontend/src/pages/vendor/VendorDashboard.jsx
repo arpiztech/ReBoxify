@@ -74,3 +74,10 @@ const VendorDashboard = () => {
 };
 
 export default VendorDashboard;
+
+<StatsCard
+  title="Revenue"
+  value={`₹${stats.totalRevenue}`}
+  icon="💰"
+  bgColor="bg-purple-500"
+/>;
