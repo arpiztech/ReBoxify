@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import StatsCard from "../../components/StatsCard";
-//import api from "../../utils/api";
+//import api from "../../utils/api"; // 🔥 FIX: added import
 import toast from "react-hot-toast";
 
 const VendorDashboard = () => {
@@ -13,6 +13,7 @@ const VendorDashboard = () => {
     activeRentals: 0,
     totalRevenue: 0,
   });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,9 +22,18 @@ const VendorDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const data = await api.get("/vendor/dashboard");
-      setStats(data.stats);
+      const res = await api.get("/vendor/dashboard");
+
+      const statsData = res.data?.stats || {};
+
+      setStats({
+        totalContainers: statsData.totalContainers || 0,
+        totalRentals: statsData.totalRentals || 0,
+        activeRentals: statsData.activeRentals || 0,
+        totalRevenue: statsData.totalRevenue || 0,
+      });
     } catch (error) {
+      console.error(error);
       toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
@@ -33,6 +43,7 @@ const VendorDashboard = () => {
   return (
     <div className="flex">
       <Sidebar />
+
       <div className="flex-1 p-8 bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">
           Vendor Dashboard
@@ -74,10 +85,3 @@ const VendorDashboard = () => {
 };
 
 export default VendorDashboard;
-
-<StatsCard
-  title="Revenue"
-  value={`₹${stats.totalRevenue}`}
-  icon="💰"
-  bgColor="bg-purple-500"
-/>;

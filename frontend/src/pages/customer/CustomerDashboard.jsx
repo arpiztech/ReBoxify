@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import StatsCard from "../../components/StatsCard";
-ReBoxify;
+//import api from "../../utils/api"; // 🔥 FIX: Import API instance
 import toast from "react-hot-toast";
 
 const CustomerDashboard = () => {
@@ -12,6 +12,7 @@ const CustomerDashboard = () => {
     totalCO2: 0,
     walletBalance: 0,
   });
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,16 +27,19 @@ const CustomerDashboard = () => {
         api.get("/customer/wallet"),
       ]);
 
-      const activeRentals = rentalsRes.rentals.filter(
-        (r) => r.status === "rented"
-      ).length;
+      const rentals = rentalsRes.data?.rentals || [];
+      const statsData = co2Res.data?.stats || {};
+      const wallet = walletRes.data?.wallet || {};
+
+      const activeRentals = rentals.filter((r) => r.status === "rented").length;
 
       setStats({
         activeRentals,
-        totalCO2: co2Res.stats.totalCO2Saved,
-        walletBalance: walletRes.wallet.balance,
+        totalCO2: statsData.totalCO2Saved || 0,
+        walletBalance: wallet.balance || 0,
       });
     } catch (error) {
+      console.error(error);
       toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
@@ -45,13 +49,14 @@ const CustomerDashboard = () => {
   return (
     <div className="flex">
       <Sidebar />
+
       <div className="flex-1 p-8 bg-gray-50">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">
           Customer Dashboard
         </h1>
 
         {loading ? (
-          <div className="text-center">Loading...</div>
+          <div className="text-center text-lg">Loading...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatsCard

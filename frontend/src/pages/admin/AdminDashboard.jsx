@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import StatsCard from "../../components/StatsCard";
-ReBoxify;
+
 import toast from "react-hot-toast";
 
 const AdminDashboard = () => {
