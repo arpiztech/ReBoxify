@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 const Register = () => {
@@ -13,9 +12,9 @@ const Register = () => {
     role: "customer",
     phone: "",
   });
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,12 +23,21 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      await register(formData);
+      // ⭐ Dummy Registration – No Backend Required
+      localStorage.setItem("user", JSON.stringify(formData));
+
       toast.success("Registration successful!");
-      navigate(`/${formData.role}/dashboard`);
+
+      // ⭐ Redirect Role According
+      if (formData.role === "customer") {
+        navigate("/customer/dashboard");
+      } else if (formData.role === "vendor") {
+        navigate("/vendor/dashboard");
+      }
     } catch (error) {
-      toast.error(error.message || "Registration failed");
+      toast.error("Registration failed");
     } finally {
       setLoading(false);
     }

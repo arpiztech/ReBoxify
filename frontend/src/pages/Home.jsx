@@ -35,11 +35,11 @@ const Home = () => {
           ) : (
             /* If not logged in → show Login + Register buttons */
             <div className="d-flex gap-2 justify-content-center">
-              <Link to="/login" className="btn btn-primary btn-lg">
+              <Link to="/" className="btn btn-primary btn-lg">
                 Get Started
               </Link>
 
-              <Link to="/register" className="btn btn-outline-primary btn-lg">
+              <Link to="/" className="btn btn-outline-primary btn-lg">
                 Learn More
               </Link>
             </div>

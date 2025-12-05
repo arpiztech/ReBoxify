@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import StatsCard from "../../components/StatsCard";
-//import api from "../../utils/api"; // 🔥 FIX: Import API instance
 import toast from "react-hot-toast";
 
 const CustomerDashboard = () => {
@@ -16,47 +15,36 @@ const CustomerDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
+    // Load dummy data because backend not connected
+    loadDummyData();
   }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const [rentalsRes, co2Res, walletRes] = await Promise.all([
-        api.get("/customer/rentals"),
-        api.get("/customer/co2-stats"),
-        api.get("/customer/wallet"),
-      ]);
+  const loadDummyData = () => {
+    setLoading(true);
 
-      const rentals = rentalsRes.data?.rentals || [];
-      const statsData = co2Res.data?.stats || {};
-      const wallet = walletRes.data?.wallet || {};
-
-      const activeRentals = rentals.filter((r) => r.status === "rented").length;
-
+    setTimeout(() => {
       setStats({
-        activeRentals,
-        totalCO2: statsData.totalCO2Saved || 0,
-        walletBalance: wallet.balance || 0,
+        activeRentals: 2,
+        totalCO2: 12.8,
+        walletBalance: 450,
       });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load dashboard data");
-    } finally {
+
+      toast.success("Dashboard Loaded!");
       setLoading(false);
-    }
+    }, 500);
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
 
-      <div className="flex-1 p-8 bg-gray-50">
+      <div className="flex-1 p-8 bg-gray-100">
         <h1 className="text-4xl font-bold text-gray-900 mb-8">
           Customer Dashboard
         </h1>
 
         {loading ? (
-          <div className="text-center text-lg">Loading...</div>
+          <div className="text-center text-xl font-semibold">Loading...</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StatsCard
@@ -65,12 +53,14 @@ const CustomerDashboard = () => {
               icon="📦"
               bgColor="bg-blue-500"
             />
+
             <StatsCard
               title="CO2 Saved (kg)"
               value={stats.totalCO2}
               icon="🌱"
               bgColor="bg-green-500"
             />
+
             <StatsCard
               title="Wallet Balance"
               value={`₹${stats.walletBalance}`}
